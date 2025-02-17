@@ -61,7 +61,7 @@ def distances_on_chrom(chrom, pca_df, n_cmp=5):
     hap_df = (pca_df.query("Population == 'Our_Haplotype'")
               .reset_index()[['Sample', *pc_list]])
     haps = hap_df.set_index('Sample').apply(tuple, axis=1).to_dict()
-    return get_distances(haps, pca_df, chrom, ARGS.dist, n_cmp=n_cmp)
+    return get_distances(haps, pca_df, chrom, ARGS.dist.lower(), n_cmp=n_cmp)
 
 
 def run_mocking(chrom, sectors):
