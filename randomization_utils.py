@@ -1,3 +1,5 @@
+#!/home/dkhlebnikov/miniconda3/envs/PofO_Sim/bin/python3
+
 import numpy as np
 from parse_cli import ARGS
 

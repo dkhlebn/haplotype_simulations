@@ -1,3 +1,5 @@
+#!/home/dkhlebnikov/miniconda3/envs/PofO_Sim/bin/python3
+
 import subprocess as sp
 import shlex as sh
 from collections import ChainMap

@@ -1,3 +1,5 @@
+#!/home/dkhlebnikov/miniconda3/envs/PofO_Sim/bin/python3
+
 import os
 import shutil
 import shlex as sh
