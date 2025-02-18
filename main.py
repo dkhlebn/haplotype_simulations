@@ -10,7 +10,7 @@ ARGS = parse_arguments()
 result = None
 
 while result is None:
-  create_directories(ARGS.wd, ARGS.chr_dt)
+  create_directories(ARGS.wd, ARGS.agg_dir, ARGS.chr_dt)
   result = run_step(ARGS.chr_dt)
   remove_subdirs(ARGS.wd)
 result.loc[:, ["Haplotype", "Cluster"]].to_csv(f"{ARGS.agg_dir}/step_{ARGS.step_n}.tsv", sep="\t")
