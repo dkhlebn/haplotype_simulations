@@ -8,6 +8,7 @@ There are a few modes we can get the results with:
 * Hide or not hide some of the true imprinting labels (`${HIDE} = Hide / NoHide`);
 * if permuted, how do we permute labels: in pairs (`${MODE} = Pair`), between known labels (`${MODE} = Total`) or between all labels including the unknown (`${MODE} = All`). If the labels are not permuted, set `${MODE} = None`;
 * Distance can also be tweaked, accepted options are `${DIST} = Euclidean / Cityblock / Cosine / Mahalanobis`.
+
 The `-m` parameter is then assembled as `${PERM}_${HIDE}_${MODE}_${DIST}`.
 
 ### Run example:
