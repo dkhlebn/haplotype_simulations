@@ -27,6 +27,12 @@ def hap_orig_mapping(fname):
     return dt
 
 
+def get_popul_data(fname):
+    popul_data = pd.read_excel(
+        "support_data/20130606_sample_info.xlsx", sheet_name="HD Genotypes"
+    ).iloc[:, [0, 1]]
+    return popul_data
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Simulation.")
 
@@ -46,6 +52,7 @@ def parse_arguments():
     args.chr_dt = chrom_lengths(args.chrom_sizes)
     args.wd = args.workdir / args.mode / args.step
     args.imprinting_data = hap_orig_mapping(args.imprinting_labels)
+    args.pops = get_popul_data(args.pops)
     return args
 
 ARGS = parse_arguments()

@@ -13,4 +13,4 @@ while result is None:
   create_directories(ARGS.wd, ARGS.chr_dt)
   result = run_step(ARGS.chr_dt)
   remove_subdirs(ARGS.wd)
-result.loc[:, ["Haplotype", "Cluster"]].to_csv(f"{ARGS.agg_dir}/step_{args.step_n}.tsv", sep="\t")
+result.loc[:, ["Haplotype", "Cluster"]].to_csv(f"{ARGS.agg_dir}/step_{ARGS.step_n}.tsv", sep="\t")

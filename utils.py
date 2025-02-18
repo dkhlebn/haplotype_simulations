@@ -75,9 +75,10 @@ def get_centroids(popul_df, n_cmp=2):
     """Calculate centroids"""
     df = (popul_df[popul_df['Population'] != "Our_Haplotype"]
                          .groupby('Population')
-                         .apply(lambda grp: grp.iloc[:, :n_cmp])
                          .mean()
-                         .to_dict('index'))
+                         .iloc[:, :n_cmp]
+                         .apply(tuple, axis=1)
+                         .to_dict())
     return df
 
 
@@ -98,6 +99,7 @@ def get_distances(haps, pca_df, chrom, mode, n_cmp=2):
     result_dt = {f"{chrom}_{hap}": {} for hap in haps}
     for popul in centroids:
         cov_matrix = (pca_df[pca_df['Population'] == popul]
+                      .iloc[:, :n_cmp]
                       .cov()
                       .values
                      )
