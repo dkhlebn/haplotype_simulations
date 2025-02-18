@@ -20,3 +20,8 @@ python3 haplotype_simulations/main.py -s example_step -a ./results \
                                       -chrom example/hg38.chr.genome.tab \
                                       -wd ./temp_dir -m Perm_NoHide_Total_Euclidean
 ```
+
+
+### Troubleshooting:
+1. Put the merged vcfs into a `joint_vcfs/${chrom}/1kg.merged.vcf.gz` directory or change the destination in the corresponding function;
+2. Change the `PLINK` variable in `plink_script.sh`;
