@@ -36,7 +36,7 @@ def get_popul_data(fname):
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Simulation.")
 
-    parser.add_argument('-s', '--step', type=str, required=True, help="Step number, technical")
+    parser.add_argument('-s', '--step_n', type=str, required=True, help="Step number, technical")
     parser.add_argument('-a', '--agg_dir', type=Path, required=True, help="Directory for results aggregation")
     parser.add_argument('-vcf', '--vcf_path', type=Path, default="joint_vcfs", help="Path to merged 1000 Genomes and haplotypes VCFs")
     parser.add_argument('-p', '--pops', type=Path, required=True, help="1000Genome Population information location")
@@ -50,7 +50,7 @@ def parse_arguments():
     args.hide_flag = args.hide_flag == "Hide"
     args.perm_flag = args.perm_flag == "Permute"
     args.chr_dt = chrom_lengths(args.chrom_sizes)
-    args.wd = args.workdir / args.mode / args.step
+    args.wd = args.workdir / args.mode / args.step_n
     args.imprinting_data = hap_orig_mapping(args.imprinting_labels)
     args.pops = get_popul_data(args.pops)
     return args
