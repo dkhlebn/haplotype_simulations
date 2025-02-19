@@ -9,10 +9,11 @@ from scipy.spatial import distance
 from scipy.linalg import inv
 
 # File and Directories manipulation
-def create_directories(base_dir, chromosomes):
+def create_directories(base_dir, res_dir, chromosomes):
     """Initiate dirs in working directory"""
     subdirs = ["merged", "plink_data", "plink_dist"]
     os.makedirs(base_dir, exist_ok=True)
+    os.makedirs(res_dir, exist_ok=True)
     for subdir in subdirs:
         path = os.path.join(base_dir, subdir)
         os.makedirs(path, exist_ok=True)
@@ -54,7 +55,7 @@ def hap_orig_mapping(fname):
 
 def create_tabix_index(fname):
     """Wrapper to run tabix to index vcf files"""
-    tabix = "/home/dkhlebn/tools/tabix"
+    tabix = "/home/dkhlebnikov/tools/bin/tabix"
     cmd = f"{tabix} -f -p vcf {fname}"
     proc = sp.Popen(sh.split(cmd))
     proc.communicate()

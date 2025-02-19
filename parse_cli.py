@@ -29,7 +29,7 @@ def hap_orig_mapping(fname):
 
 def get_popul_data(fname):
     popul_data = pd.read_excel(
-        "support_data/20130606_sample_info.xlsx", sheet_name="HD Genotypes"
+        fname, sheet_name="HD Genotypes"
     ).iloc[:, [0, 1]]
     return popul_data
 

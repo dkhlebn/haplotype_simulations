@@ -21,7 +21,7 @@ def create_mock_haps(chrom, chrom_sectors):
     for the mock file"""
     merged = ps.VariantFile(f"{ARGS.vcf_path}/{chrom}/1kg.haps.{chrom}.merged.vcf.gz")
     mock_f = ps.VariantFile(
-        f"{ARGS.wd}/merged/{chrom}/1kg_haps.merged.vcf.gz", "w", header=merged.header
+        f"{ARGS.wd}/merged/{chrom}/1kg_haps.merged.vcf.gz", "wz", header=merged.header
     )
     for i, (start, end) in enumerate(chrom_sectors):
         flag = i % 2 #np.random.random() > 0.5
@@ -39,7 +39,7 @@ def run_plink_cmds(chrom, merged_path):
     specimen and haplotype pseudo-specimen"""
     pdata_dir=f"{ARGS.wd}/plink_data"
     pdist_dir=f"{ARGS.wd}/plink_dist"
-    cmd = f"sh ./plink_script.sh {chrom} {merged_path} {pdata_dir} {pdist_dir}"
+    cmd = f"sh haplotype_simulations/plink_script.sh {chrom} {merged_path} {pdata_dir} {pdist_dir}"
     proc = sp.Popen(sh.split(cmd))
     _, _ = proc.communicate()
     return f"{pdist_dir}/{chrom}/donor2.{chrom}.distances"
