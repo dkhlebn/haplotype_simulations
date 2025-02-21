@@ -2,9 +2,9 @@
 
 
 import pandas as pd
-from parse_cli import parse_arguments
-from utils import create_directories, remove_subdirs
-from permutation_funcs import run_step
+from .parse_cli import parse_arguments
+from .utils import create_directories, remove_subdirs
+from .permutation_funcs import run_step
 
 ARGS = parse_arguments()
 result = None

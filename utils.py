@@ -7,6 +7,7 @@ import subprocess as sp
 import pandas as pd
 from scipy.spatial import distance
 from scipy.linalg import inv
+from numpy.linalg import eigh
 
 # File and Directories manipulation
 def create_directories(base_dir, res_dir, chromosomes):
@@ -72,7 +73,7 @@ def process_snp(r):
     return r
 
 
-def get_centroids(popul_df, n_cmp=2):
+def get_centroids(popul_df, n_cmp=5):
     """Calculate centroids"""
     df = (popul_df[popul_df['Population'] != "Our_Haplotype"]
                          .groupby('Population')
@@ -81,6 +82,21 @@ def get_centroids(popul_df, n_cmp=2):
                          .apply(tuple, axis=1)
                          .to_dict())
     return df
+
+
+def classical_mds(d, k=5):
+    n, x = d.shape[0], d ** 2
+    H = np.eye(n) - np.ones((n, n)) / n
+    B = -0.5 * H @ x @ H
+    eigvals, eigvecs = eigh(B)
+    idx = np.argsort(eigvals)[::-1]
+    eigvals, eigvecs = eigvals[idx], eigvecs[:, idx]
+    pos_eigvals = eigvals[:k]
+    pos_eigvals = pos_eigvals[pos_eigvals > 0]
+    evecs = eigvecs[:, :len(pos_eigvals)]
+
+    points = evecs * np.sqrt(pos_eigvals)
+    return pd.DataFrame(points, columns=[f"PC{i}" for i in range(1, k+1)])
 
 
 def calc_dist(crds1, crds2, cov_inv, mode="euclidean"):
@@ -93,7 +109,7 @@ def calc_dist(crds1, crds2, cov_inv, mode="euclidean"):
     return getattr(distance, mode)(crds1, crds2)
 
 
-def get_distances(haps, pca_df, chrom, mode, n_cmp=2):
+def get_distances(haps, pca_df, chrom, mode, n_cmp=5):
     """Get distances of haps to centroids"""
     centroids = get_centroids(pca_df, n_cmp)
     haps = {h: coords[:n_cmp] for h, coords in haps.items()}

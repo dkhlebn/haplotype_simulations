@@ -10,9 +10,9 @@ import pysam as ps
 from pqdm.threads import pqdm as pqdm_t
 from pqdm.processes import pqdm as pqdm_p
 from sklearn.cluster import AgglomerativeClustering
-from parse_cli import ARGS
-from utils import process_snp, create_tabix_index, get_distances
-from randomization_utils import generate_chromosome_sectors, permute_imprinting
+from .parse_cli import ARGS
+from .utils import process_snp, create_tabix_index, get_distances, classical_mds
+from .randomization_utils import generate_chromosome_sectors, permute_imprinting
 
 
 def create_mock_haps(chrom, chrom_sectors):
@@ -59,6 +59,18 @@ def execute_data_svd(plink_fs_prefix, n_cmp=5):
     return res
 
 
+def perform_MDS(plink_fs_prefix, n_cmp=5):
+    """Run classical MDS on obtained distance matrix"""
+    distances = pd.read_csv(f"{plink_fs_prefix}.mdist", header=None, sep=" ").iloc[:, :-1]
+    sample_ids = pd.read_csv(f"{plink_fs_prefix}.mdist.id", sep='\t',
+                             header=None, names=["famids", "IID"])
+    pca_coords = classical_mds(distances, k=n_cmp)
+    pca_df = pd.concat([sample_ids, pca_coords], axis=1)
+    pca_df = pca_df.merge(ARGS.pops, left_on="famids", right_on="Sample").iloc[:, 2:]
+    pca_df = pca_df.set_index('Sample')
+    return pca_df
+
+
 def distances_on_chrom(chrom, pca_df, n_cmp=5):
     """Perform distance calculation on PCA data and cluster haps into two groups"""
     pc_list = [f"PC{i}" for i in range(1, n_cmp + 1)]
@@ -76,15 +88,15 @@ def run_mocking(chrom, sectors):
     return (chrom, plink_pref)
 
 
-def run_clustering(chrom, plink_pref):
+def run_dimreduction(chrom, plink_pref):
     """Wrapper func to run simulation in parallel
     Runs on threads"""
-    df_chrom = execute_data_svd(plink_pref)
+    df_chrom = perform_MDS(plink_pref)
     dt = distances_on_chrom(chrom, df_chrom)
     return dt
 
 
-def parse_step(step_df):
+def assign_parents(step_df):
     """Infer mock haplotypes PofO"""
     clusts = AgglomerativeClustering().fit(step_df)
     df = pd.DataFrame({"Haplotype": step_df.index, "Cluster": clusts.labels_}).merge(
@@ -98,7 +110,7 @@ def parse_step(step_df):
     return df
 
 
-def run_step(chr_dt):
+def run_sim_step(chr_dt):
     """Run simulation step"""
     sectors = generate_chromosome_sectors(chr_dt)
     args = [{"chrom": chrom, "sectors": sectors}
@@ -106,8 +118,27 @@ def run_step(chr_dt):
     chr2pref = pqdm_p(args, run_mocking, n_jobs=22, argument_type="kwargs")
     args = [{"chrom": t[0], "plink_pref": t[1]} for t in chr2pref]
     step_results = pqdm_t(
-        args, run_clustering, n_jobs=22, argument_type="kwargs", disable=True
+        args, run_dimreduction, n_jobs=22, argument_type="kwargs", disable=True
     )
     merged_dict = dict(ChainMap(*reversed(step_results)))
     step_result = pd.DataFrame(merged_dict).transpose()
-    return parse_step(step_result)
+    return assign_parents(step_result)
+
+
+def compute_real_data(path_to_mvcfs):
+    """Run computations on real data"""
+    chr_list = [f'chr{i}' for i in [*range(1, 23)]]
+    create_directories(path_to_mvcfs, "./", chr_list)
+    args = [{"chrom": chrom, 
+             "merged_path": f"{path_to_mvcfs}/{chrom}/1kg.haps.{chrom}.merged.vcf.gz"} for chrom in chr_list]
+    chr2pref = pqdm_p(args, run_plink_cmds, n_jobs=22, argument_type="kwargs")
+    ddts = []
+    for chrom, ppref in tqdm(zip(chr_list, chr2pref)):
+        df_chrom = perform_MDS(ppref)
+        dt = distances_on_chrom(chrom, df_chrom)
+        ddts.append(dt)
+    merged_dict = dict(ChainMap(*ddts))
+    step_result = pd.DataFrame(merged_dict).transpose()
+    remove_subdirs(f"{path_to_mvcfs}/plink_data")
+    remove_subdirs(f"{path_to_mvcfs}/plink_dist")
+    return step_result
